@@ -41,26 +41,26 @@ void loop() {
     sensorValue[3] = sensorValue[0] << 2 | sensorValue[1] << 1 | sensorValue[2]; //Moves the bits to create different values for the combinations of sensors
 
     switch(sensorValue[3]){
-        case 0:
+        case 0: //All white
             drive(0, 0);
             break;
-        case 1:
-            drive(180, 80);
+        case 1: //Right black
+            drive(120, -120);
             break;
-        case 2:
-            drive(100, 100);
+        case 2: //Center black
+            drive(80, 80);
             break;
-        case 4:
-            drive(80, 180);
+        case 4: //Left black
+            drive(-120, 120);
             break;
-        case 3:
-            drive(190, 60);
+        case 3: //Center and right black
+            drive(100, 60);
             break;
-        case 6:
-            drive(60, 190);
+        case 6: //Center and left black
+            drive(60, 100);
             break;
         case 5:
-            drive(0, 0);
+            drive(80, 80);
             break;
         case 7:
             drive(0, 0);
