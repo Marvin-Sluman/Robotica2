@@ -33,11 +33,13 @@ void drive(int left, int right){
     digitalWrite(PIN_DIRECTION_LEFT, LOW);
   }else {
     digitalWrite(PIN_DIRECTION_LEFT, HIGH);
+    left = -left;
   }
   if(right > 0){
     digitalWrite(PIN_DIRECTION_RIGHT, HIGH);
   }else {
     digitalWrite(PIN_DIRECTION_RIGHT, LOW);
+    right = -right;
   }
   analogWrite(PIN_MOTOR_PWM_RIGHT, right);
   analogWrite(PIN_MOTOR_PWM_LEFT, left);
