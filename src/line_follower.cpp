@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "robot.h"
   
 #define PIN_TRACKING_LEFT   A1
 #define PIN_TRACKING_CENTER A2
@@ -9,29 +10,23 @@
 #define PIN_MOTOR_PWM_RIGHT 5
 #define PIN_MOTOR_PWM_LEFT  6
 
-u8 sensorValue[4];       //define an array 
+byte servoOffset = 0;    //change the value to Calibrate servo
+uint8_t sensorValue[4];       //define an array 
+bool dataGathering = true;
+uint32_t startTime;
+uint32_t currentTime;
+uint32_t objectsLeft[10];
+uint32_t objectsRight[10];
+uint8_t objectsLeftCount, objectsRightCount;
 
-//Function to move the motors. Requires value between -255 and 255 for both sides
-void drive(int left, int right){
-  if(left > 0){
-    digitalWrite(PIN_DIRECTION_LEFT, LOW);
-  }else {
-    digitalWrite(PIN_DIRECTION_LEFT, HIGH);
-  }
-  if(right > 0){
-    digitalWrite(PIN_DIRECTION_RIGHT, HIGH);
-  }else {
-    digitalWrite(PIN_DIRECTION_RIGHT, LOW);
-  }
-  analogWrite(PIN_MOTOR_PWM_RIGHT, right);
-  analogWrite(PIN_MOTOR_PWM_LEFT, left);
-}
+Servo servo;
 
 void setup() {
     Serial.begin(9600);
     pinMode(PIN_TRACKING_LEFT, INPUT); 
     pinMode(PIN_TRACKING_RIGHT, INPUT); 
     pinMode(PIN_TRACKING_CENTER, INPUT); 
+    startTime = millis();
 }
 
 void loop() {
@@ -66,5 +61,15 @@ void loop() {
             drive(0, 0);
             break;  
     }
-  
+    servo.write(0);
+    if(getSonar() < 40){
+      objectsLeft[objectsLeftCount] = (millis() - startTime);
+      objectsLeftCount++;
+    }
+    servo.write(180);
+    if(getSonar() < 40){
+      objectsRight[objectsRightCount] = (millis() - startTime);
+      objectsRightCount++;
+    }
+    servo.write(90);
 }
