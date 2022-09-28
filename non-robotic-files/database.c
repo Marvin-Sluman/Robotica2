@@ -5,28 +5,21 @@
 
 char option;
 char input[255];
+char value[255];
 char addInput[15][50];
 char query[300];
-char driverRef[255];
-int number;
-char code[3];
-char forename[255];
-char surname[255];
-char date[20];
-char nationality[255];
-char url[255];
-
 char currentTable[50];
 
 char columns[15][50];
 char currentColumn[50];
 int amountColumns;
 
-
+//Creating MYSQL objects needed for SQL queries 
 MYSQL *con;
 MYSQL_RES *result;
 MYSQL_ROW row;
 
+//Function to run when there's an MYSQL error
 void finish_with_error(MYSQL *con){
   printf("%s\n", mysql_error(con));
   mysql_close(con);
@@ -96,38 +89,15 @@ void add_data(){
   if(mysql_query(con, query)){
     finish_with_error(con);
   }
-  printf("Data has been added succesfully");
-
-  /*
-  printf("driverRef ");
-  scanf("%s", driverRef);
-  printf("number ");
-  scanf("%d", &number);
-  printf("code ");
-  scanf("%s", code);
-  printf("forename ");
-  scanf("%s", forename);
-  printf("surname ");
-  scanf("%s", surname);
-  printf("date ");
-  scanf("%s", date);
-  printf("nationality ");
-  scanf("%s", nationality);
-  printf("url ");
-  scanf("%s", url);
-  sprintf(query, "INSERT INTO drivers VALUES (NULL, '%s', '%d', '%s', '%s', '%s', '%s', '%s', '%s')", driverRef, number, code, forename, surname, date, nationality, url);
-  if(mysql_query(con, query)){
-    finish_with_error(con);
-  }
-  */
+  printf("Data has been added succesfully\n");
 }
 
 void delete_data(){
   printf("Please give the column you want to delete data from: \n");
   scanf("%s", currentColumn);
   printf("\nPlease give the value you want to delete: \n");
-  scanf("%s", input);
-  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
+  scanf("%s", value);
+  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, value);
 
   if (mysql_query(con, query)){
     finish_with_error(con);
@@ -148,12 +118,13 @@ void delete_data(){
   mysql_free_result(result);
   printf("\nDo you want to delete the above data? (Yes/No)\n");
   scanf("%s", input);
-  char string[4] = "Yes";
   if(strcmp(input, "Yes") == 0){
-    sprintf(query, "DELETE FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
+    sprintf(query, "DELETE FROM %s WHERE %s = '%s'", currentTable, currentColumn, value);
     if (mysql_query(con, query)){
       finish_with_error(con);
     }
+    printf("%s\n", query);
+    printf("Entry has been deleted\n");
   }else{
     printf("Aborted, no data altered");
     exit(0);
@@ -190,28 +161,7 @@ void view_data(){
     printf("\n");
   }
   mysql_free_result(result);
-  /*
-  printf("surname ");
-  scanf("%s", surname);
-  sprintf(query, "SELECT * FROM drivers WHERE surname = '%s'", surname);
-  if (mysql_query(con, query)){
-    finish_with_error(con);
-  }
-  result = mysql_store_result(con);
-  if(result == NULL){
-    finish_with_error(con);
-  }
 
-  int num_fields = mysql_num_fields(result);
-
-  while((row = mysql_fetch_row(result))){
-    for(int i = 0; i < num_fields; i++){
-      printf("%s ", row[i] ? row[i] : "NULL");
-    }
-    printf("\n");
-  }
-  mysql_free_result(result);
-  */
 }
 
 int main(int argc, char **argv)
