@@ -9,6 +9,7 @@ char value[255];
 char addInput[15][50];
 char query[300];
 char currentTable[50];
+char updateValue[50];
 
 char columns[15][50];
 char currentColumn[50];
@@ -133,10 +134,61 @@ void delete_data(){
 }
 
 void modify_data(){
+  sprintf(query, "SELECT * FROM %s", currentTable);
+  printf("Please give the column you want to filter on: \n");
+  scanf("%s", currentColumn);
+  printf("\nPlease give the value you want to filter on: \n");
+  scanf("%s", input);
+  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
+  
+  if (mysql_query(con, query)){
+      finish_with_error(con);
+  }
+  result = mysql_store_result(con);
+  if(result == NULL){
+    finish_with_error(con);
+  }
+
+  int num_fields = mysql_num_fields(result);
+  printf("\n");
+  while((row = mysql_fetch_row(result))){
+    for(int i = 0; i < num_fields; i++){
+      printf("%s: ", columns[i]);
+      printf("%s \n", row[i] ? row[i] : "NULL");
+    }
+    printf("\n");
+  }
+  mysql_free_result(result);
+  
+  if(num_fields > 1){
+    printf("You have selected more than one entry. If you update a cell, the value will be applied to all the above entries. Do you want to continue (C) or select again (A)?");
+    scanf(" %c", &option);
+    if(option != 'C'){
+      modify_data();
+    }
+  }
+
+  printf("Which cell do you want to update? :");
+  scanf("%s", updateValue);
+  sprintf(query, "UPDATE %s SET %s='", currentTable, updateValue);
+  printf("What's the new value? :");
+  scanf("%s", updateValue);
+  strcat(query, updateValue);
+  strcat(query, "' WHERE ");
+  strcat(query, currentColumn);
+  strcat(query, "= '");
+  strcat(query, input);
+  strcat(query, "'");
+  printf("%s", query);
+  if(mysql_query(con, query)){
+    finish_with_error(con);
+  }
+  printf("Data has been altered succesfully\n");
 
 }
 
 void view_data(){
+  printf("First find the entry you want to update\n");
   sprintf(query, "SELECT * FROM %s", currentTable);
   printf("Please give the column you want to filter on: \n");
   scanf("%s", currentColumn);
@@ -156,7 +208,8 @@ void view_data(){
   printf("\n");
   while((row = mysql_fetch_row(result))){
     for(int i = 0; i < num_fields; i++){
-      printf("%s ", row[i] ? row[i] : "NULL");
+      printf("%s: ", columns[i]);
+      printf("%s \n", row[i] ? row[i] : "NULL");
     }
     printf("\n");
   }
