@@ -14,6 +14,7 @@ char updateValue[50];
 char columns[15][50];
 char currentColumn[50];
 int amountColumns;
+int num_fields;
 
 //Creating MYSQL objects needed for SQL queries 
 MYSQL *con;
@@ -36,7 +37,7 @@ void show_tables(){
     finish_with_error(con);
   }
 
-  printf("These are the tables you can work with: \n");
+  printf("These are the tables you can work with: \n\n");
   while((row = mysql_fetch_row(result))){
       printf("%s ", row[0]); 
     printf("\n");
@@ -71,6 +72,35 @@ char get_option(){
   return option;
 }
 
+void view_data(){
+  sprintf(query, "SELECT * FROM %s", currentTable);
+  printf("Please give the column you want to filter on: \n");
+  scanf("%s", currentColumn);
+  printf("\nPlease give the value you want to filter on: \n");
+  scanf("%s", input);
+  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
+
+  if (mysql_query(con, query)){
+    finish_with_error(con);
+  }
+  result = mysql_store_result(con);
+  if(result == NULL){
+    finish_with_error(con);
+  }
+
+  num_fields = mysql_num_fields(result);
+  printf("\n");
+  while((row = mysql_fetch_row(result))){
+    for(int i = 0; i < num_fields; i++){
+      printf("%s: ", columns[i]);
+      printf("%s \n", row[i] ? row[i] : "NULL");
+    }
+    printf("\n");
+  }
+  mysql_free_result(result);
+
+}
+
 void add_data(){
   sprintf(query, "INSERT INTO %s (%s", currentTable, columns[0]);
   for(int i = 1; i < amountColumns; i++){
@@ -94,29 +124,9 @@ void add_data(){
 }
 
 void delete_data(){
-  printf("Please give the column you want to delete data from: \n");
-  scanf("%s", currentColumn);
-  printf("\nPlease give the value you want to delete: \n");
-  scanf("%s", value);
-  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, value);
+  printf("First find the entry you want to delete\n");
+  view_data();
 
-  if (mysql_query(con, query)){
-    finish_with_error(con);
-  }
-  result = mysql_store_result(con);
-  if(result == NULL){
-    finish_with_error(con);
-  }
-
-  int num_fields = mysql_num_fields(result);
-  printf("\n");
-  while((row = mysql_fetch_row(result))){
-    for(int i = 0; i < num_fields; i++){
-      printf("%s ", row[i] ? row[i] : "NULL");
-    }
-    printf("\n");
-  }
-  mysql_free_result(result);
   printf("\nDo you want to delete the above data? (Yes/No)\n");
   scanf("%s", input);
   if(strcmp(input, "Yes") == 0){
@@ -127,38 +137,15 @@ void delete_data(){
     printf("%s\n", query);
     printf("Entry has been deleted\n");
   }else{
-    printf("Aborted, no data altered");
+    printf("Aborted, no data altered\n");
     exit(0);
   }
 
 }
 
 void modify_data(){
-  sprintf(query, "SELECT * FROM %s", currentTable);
-  printf("Please give the column you want to filter on: \n");
-  scanf("%s", currentColumn);
-  printf("\nPlease give the value you want to filter on: \n");
-  scanf("%s", input);
-  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
-  
-  if (mysql_query(con, query)){
-      finish_with_error(con);
-  }
-  result = mysql_store_result(con);
-  if(result == NULL){
-    finish_with_error(con);
-  }
-
-  int num_fields = mysql_num_fields(result);
-  printf("\n");
-  while((row = mysql_fetch_row(result))){
-    for(int i = 0; i < num_fields; i++){
-      printf("%s: ", columns[i]);
-      printf("%s \n", row[i] ? row[i] : "NULL");
-    }
-    printf("\n");
-  }
-  mysql_free_result(result);
+  printf("First find the entry you want to update\n");
+  view_data();
   
   if(num_fields > 1){
     printf("You have selected more than one entry. If you update a cell, the value will be applied to all the above entries. Do you want to continue (C) or select again (A)?");
@@ -179,41 +166,11 @@ void modify_data(){
   strcat(query, "= '");
   strcat(query, input);
   strcat(query, "'");
-  printf("%s", query);
+
   if(mysql_query(con, query)){
     finish_with_error(con);
   }
   printf("Data has been altered succesfully\n");
-
-}
-
-void view_data(){
-  printf("First find the entry you want to update\n");
-  sprintf(query, "SELECT * FROM %s", currentTable);
-  printf("Please give the column you want to filter on: \n");
-  scanf("%s", currentColumn);
-  printf("\nPlease give the value you want to filter on: \n");
-  scanf("%s", input);
-  sprintf(query, "SELECT * FROM %s WHERE %s = '%s'", currentTable, currentColumn, input);
-
-  if (mysql_query(con, query)){
-    finish_with_error(con);
-  }
-  result = mysql_store_result(con);
-  if(result == NULL){
-    finish_with_error(con);
-  }
-
-  int num_fields = mysql_num_fields(result);
-  printf("\n");
-  while((row = mysql_fetch_row(result))){
-    for(int i = 0; i < num_fields; i++){
-      printf("%s: ", columns[i]);
-      printf("%s \n", row[i] ? row[i] : "NULL");
-    }
-    printf("\n");
-  }
-  mysql_free_result(result);
 
 }
 
