@@ -51,12 +51,12 @@ int getLightSensor() {
   sensorValue[1] = digitalRead(PIN_TRACKING_CENTER);
   sensorValue[2] = digitalRead(PIN_TRACKING_RIGHT);
   sensorValue[3] = sensorValue[0] << 2 | sensorValue[1] << 1 | sensorValue[2]; //Moves the bits to create different values for the combinations of sensors
-  Serial.print("Sensor Value (L / M / R / ALL) : ");
+  //Serial.print("Sensor Value (L / M / R / ALL) : ");
   for (int i = 0; i < 4; i++) {
-    Serial.print(sensorValue[i]);
-    Serial.print('\t');
+    //Serial.print(sensorValue[i]);
+    //Serial.print('\t');
   }
-  Serial.print('\n');
+  //Serial.print('\n');
   
   return sensorValue[3];
 }
