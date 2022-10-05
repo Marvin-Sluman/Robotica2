@@ -8,6 +8,7 @@ char input[255];
 char value[255];
 char addInput[15][50];
 char query[300];
+char addQuery[300];
 char currentTable[50];
 char updateValue[50];
 
@@ -127,7 +128,7 @@ void delete_data(){
   printf("First find the entry you want to delete\n");
   view_data();
 
-  printf("\nDo you want to delete the above data? (Yes/No)\n");
+  printf("\nDo you want to delete the above data? (Yes/No):");
   scanf("%s", input);
   if(strcmp(input, "Yes") == 0){
     sprintf(query, "DELETE FROM %s WHERE %s = '%s'", currentTable, currentColumn, value);
@@ -160,13 +161,9 @@ void modify_data(){
   sprintf(query, "UPDATE %s SET %s='", currentTable, updateValue);
   printf("What's the new value? :");
   scanf("%s", updateValue);
-  strcat(query, updateValue);
-  strcat(query, "' WHERE ");
-  strcat(query, currentColumn);
-  strcat(query, "= '");
-  strcat(query, input);
-  strcat(query, "'");
-
+  sprintf(addQuery, "%s' WHERE %s = '%s'", updateValue, currentColumn, input);
+  strcat(query, addQuery);
+  
   if(mysql_query(con, query)){
     finish_with_error(con);
   }
