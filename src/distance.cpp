@@ -82,10 +82,10 @@ void loop() {
     }
     delay(10000);
     for (int i = 11; i < 15; i++){
-        drive(80, 80);
+        drive(-80, -80);
         delay(5000);
         drive(0, 0);
-        delay(1000);
+        delay(10000);
         distance[i] = getSonar();
     }
 /*

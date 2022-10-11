@@ -61,6 +61,7 @@ void loop() {
             drive(0, 0);
             break;  
     }
+    
     servo.write(0);
     if(getSonar() < 40){
       objectsLeft[objectsLeftCount] = (millis() - startTime);
