@@ -22,6 +22,7 @@ uint8_t lastCase = 0;
 uint16_t distance;
 uint8_t message[4];
 uint8_t lastBit;
+bool gapDetect;
 int i = 0;
 
 Servo servo;
@@ -45,14 +46,16 @@ void loop() {
     distance = getSonar();
     delay(50);
     Serial.println(distance);
-    if(distance < 10){
+    if(distance < 10 && gapDetect == true){
         message[i] = 1;
         lastBit = 1;
         i++;
-    }else if(distance < 20){
+    }else if(distance < 20 && gapDetect == true){
         message[i] = 1;
         lastBit = 0;
         i++;
+    }else{
+        gapDetect = true;
     }
 
     if(sensorValue[3] == 0){

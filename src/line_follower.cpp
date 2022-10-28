@@ -4,20 +4,11 @@
 
 #define I2C_ADDRESS 0x20
 #define LEDS_COUNT  10
-  
-#define PIN_TRACKING_LEFT   A1
-#define PIN_TRACKING_CENTER A2
-#define PIN_TRACKING_RIGHT  A3
-
-#define PIN_DIRECTION_RIGHT 3
-#define PIN_DIRECTION_LEFT  4
-#define PIN_MOTOR_PWM_RIGHT 5
-#define PIN_MOTOR_PWM_LEFT  6
 
 Freenove_WS2812B_Controller strip(I2C_ADDRESS, LEDS_COUNT, TYPE_GRB);
 
 byte servoOffset = 0;    //change the value to Calibrate servo
-uint8_t sensorValue[4];       //define an array 
+uint8_t sensorValue;       //define an array 
 uint8_t lastCase = 0;
 bool returning = false;
 uint32_t startTime;
@@ -60,15 +51,13 @@ void setup() {
 }
 
 void loop() {
-    sensorValue[0] = digitalRead(PIN_TRACKING_LEFT);
-    sensorValue[1] = digitalRead(PIN_TRACKING_CENTER);
-    sensorValue[2] = digitalRead(PIN_TRACKING_RIGHT);
-    sensorValue[3] = sensorValue[0] << 2 | sensorValue[1] << 1 | sensorValue[2]; //Moves the bits to create different values for the combinations of sensors
+    
+    sensorValue = getLightSensor();
 
-    if(sensorValue[3] == 0){
-        sensorValue[3] = lastCase;
+    if(sensorValue == 0){
+        sensorValue = lastCase;
     }
-    switch(sensorValue[3]){
+    switch(sensorValue){
         case 1: //Right black
             drive(120, -140);
             break;
@@ -97,7 +86,7 @@ void loop() {
             break;  
     }
     
-    lastCase = sensorValue[3];
+    lastCase = sensorValue;
     currentTime = millis();
     if(returning == false){
         if((currentTime - lastMeasure) > 500 ){

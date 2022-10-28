@@ -88,14 +88,14 @@ void loop() {
         delay(10000);
         distance[i] = getSonar();
     }
-/*
+
     for (int i = 11; i < 15; i++){
         drive(80, 80);
         delay(20000);
         drive(0, 0);
         delay(1000);
         distance[i] = getSonar();
-    }*/
+    }
 
     for(int i = 0; i < sizeof(distance); i++){
         Serial.println(distance[i]);

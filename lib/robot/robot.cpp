@@ -12,6 +12,7 @@ void setPins(){
   pinMode(PIN_TRACKING_CENTER, INPUT); 
 }
 
+//Get distance measure from ultrasonic sensor
 float getSonar() {
   unsigned long pingTime;
   float distance;
@@ -45,18 +46,13 @@ void drive(int left, int right){
   analogWrite(PIN_MOTOR_PWM_LEFT, left);
 }
 
+//Function to read values from the 3 bottom line sensors and store them in one byte
 int getLightSensor() {
   uint8_t sensorValue[4];
   sensorValue[0] = digitalRead(PIN_TRACKING_LEFT);
   sensorValue[1] = digitalRead(PIN_TRACKING_CENTER);
   sensorValue[2] = digitalRead(PIN_TRACKING_RIGHT);
   sensorValue[3] = sensorValue[0] << 2 | sensorValue[1] << 1 | sensorValue[2]; //Moves the bits to create different values for the combinations of sensors
-  //Serial.print("Sensor Value (L / M / R / ALL) : ");
-  for (int i = 0; i < 4; i++) {
-    //Serial.print(sensorValue[i]);
-    //Serial.print('\t');
-  }
-  //Serial.print('\n');
   
   return sensorValue[3];
 }
