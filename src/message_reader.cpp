@@ -2,18 +2,6 @@
 #include "robot.h"
 #include "Freenove_WS2812B_RGBLED_Controller.h"
 
-#define I2C_ADDRESS 0x20
-#define LEDS_COUNT  10
-  
-#define PIN_TRACKING_LEFT   A1
-#define PIN_TRACKING_CENTER A2
-#define PIN_TRACKING_RIGHT  A3
-
-#define PIN_DIRECTION_RIGHT 3
-#define PIN_DIRECTION_LEFT  4
-#define PIN_MOTOR_PWM_RIGHT 5
-#define PIN_MOTOR_PWM_LEFT  6
-
 Freenove_WS2812B_Controller strip(I2C_ADDRESS, LEDS_COUNT, TYPE_GRB);
 
 byte servoOffset = 0;    //change the value to Calibrate servo
@@ -22,19 +10,20 @@ uint8_t lastCase = 0;
 uint16_t distance;
 uint8_t message[4];
 uint8_t lastBit;
-bool gapDetect;
+bool gapDetect = true;
 int i = 0;
+int timeOut = 500;
+int timeReading;
 
 Servo servo;
 
 void setup() {
     Serial.begin(9600);
     while(!strip.begin());
-    pinMode(PIN_TRACKING_LEFT, INPUT); 
-    pinMode(PIN_TRACKING_RIGHT, INPUT); 
-    pinMode(PIN_TRACKING_CENTER, INPUT);
+    setPins();
     servo.attach(PIN_SERVO); 
     servo.write(180);
+    delay(5000);
 }
 
 void loop() {
@@ -43,19 +32,31 @@ void loop() {
     sensorValue[2] = digitalRead(PIN_TRACKING_RIGHT);
     sensorValue[3] = sensorValue[0] << 2 | sensorValue[1] << 1 | sensorValue[2]; //Moves the bits to create different values for the combinations of sensors
 
-    distance = getSonar();
-    delay(50);
-    Serial.println(distance);
-    if(distance < 10 && gapDetect == true){
-        message[i] = 1;
-        lastBit = 1;
-        i++;
-    }else if(distance < 20 && gapDetect == true){
-        message[i] = 1;
-        lastBit = 0;
-        i++;
-    }else{
-        gapDetect = true;
+    if((millis() - timeReading) > timeOut){
+        distance = getSonar();
+        delay(50);
+        //Serial.println(distance);
+        if(distance < 15){
+            drive(0, 0);
+            gapDetect = false;
+            message[i] = 1;
+            lastBit = 1;
+            i++;
+            strip.setLedColor(i, 0xFF0000);
+            delay(3000);
+            timeReading = millis();
+        }else if(distance < 21){
+            drive(0, 0);
+            gapDetect = false;
+            message[i] = 0;
+            lastBit = 0;
+            i++;
+            strip.setLedColor(i, 0x0000FF);
+            delay(3000);
+            timeReading = millis();
+        }else if(distance > 20){
+            gapDetect = true;
+        }
     }
 
     if(sensorValue[3] == 0){
@@ -84,3 +85,15 @@ void loop() {
             drive(0, 0);
             break;  
     }
+    if(i == 4){
+        for(int j = 0; j < 4; j++){
+            drive(0, 0);
+            Serial.print("Bit: ");
+            Serial.print(j);
+            Serial.print(" = ");
+            Serial.println(message[j]);
+            delay(2000);
+        }
+        exit(1);
+    }
+}

@@ -2,9 +2,6 @@
 #include "robot.h"
 #include "Freenove_WS2812B_RGBLED_Controller.h"
 
-#define I2C_ADDRESS 0x20
-#define LEDS_COUNT  10
-
 Freenove_WS2812B_Controller strip(I2C_ADDRESS, LEDS_COUNT, TYPE_GRB);
 
 byte servoOffset = 0;    //change the value to Calibrate servo
@@ -22,17 +19,19 @@ Servo servo;
 
 void returnPath(){
     if(objectsLeft[objectsLeftCount] < (currentTime - startTime)){
-       strip.setLedColor(3, 0x0000FF);
-       delay(50);
-       objectsLeftCount++;
+        drive(0, 0);
+        strip.setLedColor(3, 0x0000FF);
+        delay(1000);
+        objectsLeftCount++;
     }else{
         strip.setLedColor(3, 0x000000);
     }
 
     if(objectsRight[objectsRightCount] < (currentTime - startTime)){
-       strip.setLedColor(8, 0x0000FF);
-       delay(50);
-       objectsRightCount++;
+        drive(0, 0);
+        strip.setLedColor(8, 0x0000FF);
+        delay(1000);
+        objectsRightCount++;
     }else{
         strip.setLedColor(8, 0x000000);
     }
@@ -77,19 +76,26 @@ void loop() {
             drive(80, 80);
             break;
         case 7:
+            if(returning == true){
+                for(int i = 0; i < sizeof(objectsLeft); i++){
+                    Serial.println(objectsLeft[i]);
+                }
+            }
             drive(0, 0);
             delay(3000);
             returning = true;
             objectsLeftCount = 0;
             objectsRightCount = 0;
             startTime = millis();
+            drive(120, 120);
+            delay(200);
             break;  
     }
     
     lastCase = sensorValue;
     currentTime = millis();
     if(returning == false){
-        if((currentTime - lastMeasure) > 500 ){
+        if((currentTime - lastMeasure) > 500 ){             //Measure left and right side every 500ms
             drive(0, 0);
             servo.write(170);
             delay(1000);

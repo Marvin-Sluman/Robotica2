@@ -2,9 +2,6 @@
 #include "robot.h" 
 #include "Servo.h"  
 #include "Freenove_WS2812B_RGBLED_Controller.h"         
- 
-#define I2C_ADDRESS 0x20
-#define LEDS_COUNT  10
 
 Freenove_WS2812B_Controller strip(I2C_ADDRESS, LEDS_COUNT, TYPE_GRB);
 
@@ -15,6 +12,23 @@ uint8_t environmentMap[10][10];
 
 Servo servo;
 
+void showColours(int distance){
+  if(distance < 11){
+    strip.setAllLedsColor(0x0000FF);
+  }else if (distance < 21){
+    strip.setAllLedsColor(0x00FF00);
+  }else if (distance < 31){
+    strip.setAllLedsColor(0x00FFFF);
+  }else if (distance < 41){
+    strip.setAllLedsColor(0xFF0000);
+  }else if (distance < 51){
+    strip.setAllLedsColor(0xFF00FF);
+  }else if (distance < 61){
+    strip.setAllLedsColor(0xFFFF00);
+  }
+  
+}
+
 //Creates a 2D array of 10 readings at different servo positions in steps of 20 degrees
 void mapObstacles(){
   //Reading the distances
@@ -24,8 +38,7 @@ void mapObstacles(){
       environmentMap[j][i] = getSonar();
       int colour;
       if(environmentMap[i][j] < 61){
-        colour = map(environmentMap[j][i], 0, 60, 0, 4095);
-        strip.setAllLedsColor(colour);
+        showColours(environmentMap[i][j]);
       }else{
         strip.setAllLedsColor(0);
       }

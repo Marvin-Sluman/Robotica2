@@ -8,8 +8,9 @@ float distanceMultiplier = 171.5265866209262; //   1 / 0.005830
 int distance;
 
 time_t t1;
+int counter;
 
-void init(){
+void init() {
     double pingTime = ping();
     //dprintf(robotOut, "ping:%f", pingTime);
     directionLeft(CounterClockwise);
@@ -37,6 +38,7 @@ void turnLeft(){
 }
 
 void turn(){
+    counter = 0;
     if((rand() % 2) == 1){
         turnLeft();
         loop();
@@ -50,7 +52,7 @@ void loop(){
     double pingTime = ping();
     distance = pingTime * distanceMultiplier;
     dprintf(robotOut, "Dist: %d", distance);
-    if(pingTime == 0){
+    if(pingTime == 0 || counter == 5){
         turn();
     }else if(pingTime < 0.012){
         speed(1);
@@ -61,4 +63,5 @@ void loop(){
     }
     wait(1);
     speed(0);
+    counter++;
 }

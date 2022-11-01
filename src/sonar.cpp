@@ -20,7 +20,7 @@ void setup() {
   pinMode(PIN_SONIC_TRIG, OUTPUT);
   pinMode(PIN_SONIC_ECHO, INPUT); 
   servo.attach(PIN_SERVO);        //initialize servo 
-  servo.write(90);
+  servo.write(180);
 }
 
 void loop() {

@@ -16,13 +16,14 @@ __uint16_t returnYCoord;
 __uint16_t returnXCoord;
 __uint16_t yCoord = 1;
 __uint16_t xCoord = 1;
-__uint16_t yMax = 40;
+__uint16_t yMax = 44;
 __uint16_t xMax = 100;
 __uint16_t yMin = 3;
 __uint16_t xMin = 3;
 int heading = N;
 int direction = UP;
 int currentDirection;
+int distance;
 
 void moveAroundObstacle();
 
@@ -34,22 +35,38 @@ void init(){
     wait(5);
 }
 
-void move(int direction){
-    speed(1);
+int getDistance(){
+    double pingTime = ping();
+    if(pingTime < 0.005){
+        distance = 0;
+        returnXCoord = xCoord;
+        returnYCoord = yCoord +1;
+    }else if(pingTime < 0.012){
+        distance = 1;
+    }else if(pingTime < 0.018){
+        distance = 2;
+    }else{
+        distance = 3;
+    }
+    return distance;
+}
+
+void move(int direction, int steps){
+    speed(steps);
     wait(1);
     speed(0);
     switch (direction){
         case UP:
-            yCoord++;
+            yCoord = yCoord + steps;
             break;
         case DOWN: 
-            yCoord--;
+            yCoord = yCoord - steps;
             break;
         case RIGHT:
-            xCoord++;
+            xCoord = xCoord + steps;
             break;
         case LEFT:
-            xCoord--;
+            xCoord = xCoord - steps;
             break;
         default:
             break;
@@ -84,52 +101,42 @@ void turnLeft(){
     speed(0);
 }
 
-int checkObstacle(){
-    int isObstacle;
-    double pingTime = ping();
-    if(pingTime < 0.005){
-        returnXCoord = xCoord;
-        returnYCoord = yCoord +1;
-        isObstacle = 1;
-    }else{
-        isObstacle = 0;
-    }
-    return isObstacle;
-}
-
 void moveAroundObstacle(int xOffset, int yOffset){
     turnRight();
-    if(checkObstacle()){
+    if(getDistance() == 0){
         turnRight();
-        move(DOWN);
+        move(DOWN, 1);
         turnLeft();
-        move(RIGHT);
+        move(RIGHT, 1);
         turnLeft();
         moveAroundObstacle(1, 1);
     }else{
+        currentDirection = direction;
         (direction == 4) ? currentDirection = 1 : currentDirection++;
-        move(currentDirection);
+        move(currentDirection, 1);
         turnLeft();
-        if(checkObstacle()){
+        if(getDistance() == 0){  
             moveAroundObstacle(2, 1);
         }else{
-            move(direction);
-            if(checkObstacle()){
+            move(direction, 1);
+            if(getDistance() == 0){
                 moveAroundObstacle(2, 2);
             }else{
-                move(direction);
+                move(direction, 1);
                 turnLeft();
-                if(checkObstacle()){
+                if(getDistance() == 0){
                     turnRight();
-                    move(direction);
+                    move(direction, 1);
                     turnLeft();
+                    currentDirection = direction;
                     (direction == 1) ? currentDirection = 4 : currentDirection--;
-                    move(currentDirection);
+                    move(currentDirection, 1);
                     turnRight();
                 }else{
                     for(int i = 0; i < xOffset; i++){
+                        currentDirection = direction;
                         (direction == 1) ? currentDirection = 4 : currentDirection--;
-                        move(currentDirection);
+                        move(currentDirection, 1);
                     }
                     turnRight();
                 }
@@ -142,15 +149,25 @@ void loop(){
     wait(0.2);
     dprintf(robotOut, "X: %d  Y: %d", xCoord, yCoord);
     wait(0.2);
-    if(checkObstacle()){
-            moveAroundObstacle(1, 1);
+
+    switch (getDistance())
+    {
+    case 0:
+        moveAroundObstacle(1, 1);
+        break;
+    default:
+        break;
     }
 
     switch (direction)
     {
     case UP:
         if(yCoord < yMax){
-            move(UP);
+            if(getDistance == 0){
+                moveAroundObstacle(1, 1);
+            }else{
+                move(UP, getDistance());
+            }
         }else{
             turnRight();
             yMax--;
@@ -159,7 +176,11 @@ void loop(){
         break;
     case RIGHT:
         if(xCoord < xMax){
-            move(RIGHT);
+            if(getDistance == 0){
+                moveAroundObstacle(1, 1);
+            }else{
+                move(RIGHT, getDistance());
+            }
         }else{
             xMax--;
             turnRight();
@@ -168,7 +189,11 @@ void loop(){
         break;
     case DOWN:
         if(yCoord > yMin){
-            move(DOWN);
+            if(getDistance == 0){
+                moveAroundObstacle(1, 1);
+            }else{
+                move(DOWN, getDistance());
+            }
         }else{
             turnRight();
             direction = LEFT;
@@ -176,7 +201,11 @@ void loop(){
         break;
     case LEFT:
         if(xCoord > xMin){
-            move(LEFT);
+            if(getDistance == 0){
+                moveAroundObstacle(1, 1);
+            }else{
+                move(LEFT, getDistance());
+            }
         }else{
             turnRight();
             direction = UP;
@@ -186,30 +215,4 @@ void loop(){
     default:
         break;
     }
-    /*
-    if(yCoord < 44 && direction == UP){
-        if(checkObstacle()){
-            moveAroundObstacle(1, 1);
-        }else{
-            move(UP);
-        }
-    }else if(yCoord > 1 && direction == DOWN){
-        if(checkObstacle()){
-            moveAroundObstacle(1, 1);
-        }else{
-            move(DOWN);
-        }
-    }else{
-        if(direction == UP){
-            turnRight();
-            move(RIGHT);
-            turnRight();
-            direction = DOWN;
-        }else{
-            turnLeft();
-            move(LEFT);
-            turnLeft();
-            direction = UP;
-        }
-    }*/
 }
