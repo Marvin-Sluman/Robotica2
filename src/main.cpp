@@ -36,9 +36,8 @@ void mapObstacles(){
     for(int j = 0; j < 10; j++){
       servo.write(j*20);
       environmentMap[j][i] = getSonar();
-      int colour;
-      if(environmentMap[i][j] < 61){
-        showColours(environmentMap[i][j]);
+      if(environmentMap[j][i] < 61){
+        showColours(environmentMap[j][i]);
       }else{
         strip.setAllLedsColor(0);
       }
@@ -54,12 +53,15 @@ void mapObstacles(){
     }
     Serial.print('\n');
   }
+  drive(100, 100);
+  delay(500);
 }
 
 void setup() {
   Serial.begin(9600);
   setPins();
   servo.attach(PIN_SERVO);        //initialize servo 
+  delay(5000);
 }
 
 void loop() {
@@ -68,7 +70,7 @@ void loop() {
     drive(0, 0);
     mapObstacles();
   }else{
-    drive(70, 70);
-    delay(1000);
+    drive(100, 100);
+
   }
 }
